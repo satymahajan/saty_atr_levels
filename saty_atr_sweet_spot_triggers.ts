@@ -22,12 +22,12 @@ input put_trigger_cloud_on = no;
 input call_trigger_cloud_on = no;
 
 def prev_close = if use_todays_close then close(period = AggregationPeriod.DAY) else close(period = AggregationPeriod.DAY)[1];
-def ATR = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), ATR_Length);
-def pt = prev_close - (sweet_spot_percentage * ATR);
-def ct = prev_close + (sweet_spot_percentage * ATR);
+def atr = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), ATR_Length);
+def pt = prev_close - (sweet_spot_percentage * atr);
+def ct = prev_close + (sweet_spot_percentage * atr);
 
 AddLabel (yes, "Puts < $" + Round (pt, 2) + "  ", Color.RED);
 AddLabel (yes, "Calls > $" + Round (ct, 2) + "  ", Color.GREEN);
 
-AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-0.05), Color.RED, Color.RED); 
-AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+0.05), Color.GREEN, Color.GREEN); 
+AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(0.01*atr)), Color.RED, Color.RED); 
+AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+(0.01*atr)), Color.GREEN, Color.GREEN); 
