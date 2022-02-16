@@ -1,5 +1,5 @@
 # Saty_ATR_Sweet_Spot_Triggers
-# v1 By Saty Mahajan (2022)
+# v2 By Saty Mahajan (2022)
 #
 # Based on ideas from Adam Sliver's video: 
 # https://www.youtube.com/watch?v=-o0v9WfJ0e0
@@ -11,14 +11,23 @@
 # Configuration:
 # - ATR length
 # - Sweet Spot Trigger Percentage (0 - 1)
+# - Use of today's close in order to find levels for tomorrow.
+# - Put trigger cloud
+# - Call trigger cloud
 
-input use_yesterdays_close = yes;
 input ATR_Length = 14;
 input sweet_spot_percentage = 0.25;
-def prev_close = if use_yesterdays_close then close(period = AggregationPeriod.DAY)[1] else close(period = AggregationPeriod.DAY);
+input use_todays_close = no;
+input put_trigger_cloud_on = no;
+input call_trigger_cloud_on = no;
+
+def prev_close = if use_todays_close then close(period = AggregationPeriod.DAY) else close(period = AggregationPeriod.DAY)[1];
 def ATR = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), ATR_Length);
 def pt = prev_close - (sweet_spot_percentage * ATR);
 def ct = prev_close + (sweet_spot_percentage * ATR);
 
 AddLabel (yes, "Puts < $" + Round (pt, 2) + "  ", Color.RED);
 AddLabel (yes, "Calls > $" + Round (ct, 2) + "  ", Color.GREEN);
+
+AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-0.05), Color.RED, Color.RED); 
+AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+0.05), Color.GREEN, Color.GREEN); 
