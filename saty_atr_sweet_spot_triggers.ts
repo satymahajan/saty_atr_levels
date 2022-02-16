@@ -12,9 +12,10 @@
 # - ATR length
 # - Sweet Spot Trigger Percentage (0 - 1)
 
+input use_yesterdays_close = yes;
 input ATR_Length = 14;
 input sweet_spot_percentage = 0.25;
-def prev_close = close(period = AggregationPeriod.DAY)[1];
+def prev_close = if use_yesterdays_close then close(period = AggregationPeriod.DAY)[1] else close(period = AggregationPeriod.DAY);
 def ATR = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), ATR_Length);
 def pt = prev_close - (sweet_spot_percentage * ATR);
 def ct = prev_close + (sweet_spot_percentage * ATR);
