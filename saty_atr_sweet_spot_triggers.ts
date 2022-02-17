@@ -31,11 +31,11 @@ def atr = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(p
 def pt = prev_close - (sweet_spot_percentage * atr);
 def ct = prev_close + (sweet_spot_percentage * atr);
 
-AddLabel (yes, "Puts < $" + Round (pt, 2) + "  ", Color.RED);
-AddLabel (yes, "Calls > $" + Round (ct, 2) + "  ", Color.GREEN);
+AddLabel (yes, "Puts < $" + Round (pt, 2) + "  ", Color.ORANGE);
+AddLabel (yes, "Calls > $" + Round (ct, 2) + "  ", Color.CYAN);
 
-AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(atr*0.01)), Color.RED, Color.RED); 
-AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+(atr*0.01)), Color.GREEN, Color.GREEN); 
+AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(atr*0.01)), Color.ORANGE, Color.ORANGE); 
+AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+(atr*0.01)), Color.CYAN, Color.CYAN); 
 
 def br = prev_close - atr;
 def tr = prev_close + atr;
