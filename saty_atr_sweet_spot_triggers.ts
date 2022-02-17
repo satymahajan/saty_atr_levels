@@ -3,13 +3,14 @@
 # Author is not responsible for your trading using this script.
 # Data provided in this script is not financial advice.
 #
-# Based on ideas from Adam Sliver's video: 
-# https://www.youtube.com/watch?v=-o0v9WfJ0e0
+# Based on ideas from drippy2hard, Adam Sliver, and others.
 #
 # Features:
 # Shows 2 labels:
 # - 25% of ATR sweet spot put trigger using previous close
+# - -1 ATR bottom range value using previous close
 # - 25% of ATR sweet spot call trigger using previous close
+# - +1 ATR top range value using previous close
 # Configuration:
 # - ATR length
 # - Sweet Spot Trigger Percentage (0 - 1)
@@ -30,15 +31,17 @@ def prev_close = if use_todays_close then close(period = AggregationPeriod.DAY) 
 def atr = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), ATR_Length);
 def pt = prev_close - (sweet_spot_percentage * atr);
 def ct = prev_close + (sweet_spot_percentage * atr);
-
-AddLabel (yes, "Puts < $" + Round (pt, 2) + "  ", Color.ORANGE);
-AddLabel (yes, "Calls > $" + Round (ct, 2) + "  ", Color.CYAN);
-
-AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(atr*0.01)), Color.ORANGE, Color.ORANGE); 
-AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+(atr*0.01)), Color.CYAN, Color.CYAN); 
-
 def br = prev_close - atr;
 def tr = prev_close + atr;
 
+# Labels
+AddLabel (yes, "Puts < $" + Round (pt, 2) + " | -1 ATR: $" +  Round (br, 2) + "   ", Color.ORANGE);
+AddLabel (yes, "Calls > $" + Round (ct, 2) + " | +1 ATR: $" + Round (br, 2) + "   ", Color.CYAN);
+
+# Put / Call trigger clouds
+AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(atr*0.01)), Color.ORANGE, Color.ORANGE); 
+AddCloud(if call_trigger_cloud_on then ct else double.nan, (ct+(atr*0.01)), Color.CYAN, Color.CYAN); 
+
+# +/- 1 ATR clouds
 AddCloud(if bottom_range_cloud_on then br else double.nan, (br-(atr*0.01)), Color.WHITE, Color.WHITE); 
 AddCloud(if top_range_cloud_on then tr else double.nan, (tr+(atr*0.01)), Color.WHITE, Color.WHITE); 
