@@ -36,7 +36,7 @@ def tr = prev_close + atr;
 
 # Labels
 AddLabel (yes, "Puts < $" + Round (pt, 2) + " | -1 ATR: $" +  Round (br, 2) + "   ", Color.ORANGE);
-AddLabel (yes, "Calls > $" + Round (ct, 2) + " | +1 ATR: $" + Round (br, 2) + "   ", Color.CYAN);
+AddLabel (yes, "Calls > $" + Round (ct, 2) + " | +1 ATR: $" + Round (tr, 2) + "   ", Color.CYAN);
 
 # Put / Call trigger clouds
 AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(atr*0.01)), Color.ORANGE, Color.ORANGE); 
