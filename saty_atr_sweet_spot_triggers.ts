@@ -3,6 +3,7 @@
 # Author is not responsible for your trading using this script.
 # Data provided in this script is not financial advice.
 #
+# Special thanks to Gabriel Viana.
 # Based on ideas from drippy2hard, Adam Sliver, and others.
 #
 # Features:
