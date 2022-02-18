@@ -1,10 +1,11 @@
-# Saty_ATR_Sweet_Spot_Triggers
+# Saty_ATR_Levels
 # v2 By Saty Mahajan (2022)
 # Author is not responsible for your trading using this script.
 # Data provided in this script is not financial advice.
 #
 # Special thanks to Gabriel Viana.
-# Based on ideas from drippy2hard, Adam Sliver, and others.
+# Based on my own ideas and ideas from drippy2hard, 
+# Adam Sliver, and others.
 #
 # Features:
 # Shows 2 labels:
