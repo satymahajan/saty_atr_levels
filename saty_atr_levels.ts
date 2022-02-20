@@ -57,7 +57,7 @@ AddLabel (yes, "Calls > $" + Round (ct, 2) + " | +1 ATR: $" + Round (tr, 2) + " 
 def cloud_size = 0.01;
 
 # Previous Close cloud
-AddCloud(if close_cloud_on then prev_close else Double.NaN, (prev_close + (atr * cloud_size)), Color.GRAY, Color.GRAY);
+AddCloud(if close_cloud_on then (prev_close - (atr * cloud_size / 2)) else Double.NaN, (prev_close + (atr * cloud_size / 2)), Color.WHITE, Color.WHITE);
 
 # Put / Call trigger clouds
 AddCloud(if put_trigger_cloud_on then pt else Double.NaN, (pt - (atr * cloud_size)), Color.ORANGE, Color.ORANGE);
