@@ -27,6 +27,7 @@ declare upper;
 input ATR_Length = 14;
 input sweet_spot_percentage = 0.25;
 input use_todays_close = no;
+input close_cloud_on = yes;
 input put_trigger_cloud_on = yes;
 input call_trigger_cloud_on = yes;
 input top_range_cloud_on = yes;
@@ -44,9 +45,12 @@ def br = prev_close - atr;
 def tr = prev_close + atr;
 
 # Labels
-AddLabel (yes, "DTR ($" + Round (atr , 2) + ") is " + round (dtr_percent,0) + "% of ATR ($" + round (atr,2)+ ")   " , (if dtr_percent <= 70 then Color.GREEN else if dtr_percent >= 90 then Color.RED else Color.ORANGE));
+AddLabel (yes, "DTR ($" + Round (dtr , 2) + ") is " + round (dtr_percent,0) + "% of ATR ($" + round (atr,2)+ ")   " , (if dtr_percent <= 70 then Color.GREEN else if dtr_percent >= 90 then Color.RED else Color.ORANGE));
 AddLabel (yes, "Puts < $" + Round (pt, 2) + " | -1 ATR: $" +  Round (br, 2) + "   ", Color.ORANGE);
 AddLabel (yes, "Calls > $" + Round (ct, 2) + " | +1 ATR: $" + Round (tr, 2) + "   ", Color.CYAN);
+
+# Previous Close cloud
+AddCloud(if close_cloud_on then prev_close else double.nan, (prev_close + 0.02), Color.WHITE, Color.WHITE);
 
 # Put / Call trigger clouds
 AddCloud(if put_trigger_cloud_on then pt else double.nan, (pt-(atr*0.01)), Color.ORANGE, Color.ORANGE); 
