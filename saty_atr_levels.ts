@@ -10,9 +10,9 @@
 # Features:
 # Shows DTR vs ATR for the day
 # Shows 2 labels:
-# - 25% of ATR sweet spot put trigger using previous close
+# - 23.6% of ATR sweet spot put trigger using previous close
 # and -1 ATR bottom range value using previous close
-# - 25% of ATR sweet spot call trigger using previous close
+# - 23.6% of ATR sweet spot call trigger using previous close
 # and +1 ATR top range value using previous close
 # Configuration:
 # - ATR length
@@ -20,6 +20,7 @@
 # - Use of today's close in order to find levels for tomorrow.
 # - Put trigger cloud
 # - Call trigger cloud
+# - +/- Midrange cloud
 # - +/-1 ATR from previous close white clouds
 
 declare upper;
