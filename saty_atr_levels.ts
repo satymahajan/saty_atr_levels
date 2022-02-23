@@ -43,8 +43,8 @@ DefineGlobalColor("Upper Trigger Cloud", Color.CYAN);
 DefineGlobalColor("Upper Middle Cloud", Color.GRAY);
 DefineGlobalColor("Upper ATR Cloud", Color.WHITE);
 
-def previous_close = if use_todays_close then close(period = AggregationPeriod.DAY) else close(period = AggregationPeriod.DAY)[1];
-def atr = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), atr_Length);
+def previous_close = close(period = AggregationPeriod.DAY)[if use_todays_close then 0 else 1];
+def atr = Round(WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), atr_Length)[if use_todays_close then 0 else 1],2);
 def todays_high = Highest(high(period = AggregationPeriod.DAY), 1);
 def todays_low = Lowest(low(period = AggregationPeriod.DAY), 1);
 def dtr = todays_high - todays_low;
