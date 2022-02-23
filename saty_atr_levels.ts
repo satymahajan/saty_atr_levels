@@ -16,7 +16,7 @@
 # and +1 ATR top range value using previous close
 # Configuration:
 # - ATR length
-# - Sweet Spot Trigger Percentage (0 - 1)
+# - Trigger Percentage (0 - 1), default is 23.6 fib
 # - Use of today's close in order to find levels for tomorrow.
 # - Put trigger cloud
 # - Call trigger cloud
