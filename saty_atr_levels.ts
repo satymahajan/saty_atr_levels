@@ -35,6 +35,14 @@ input upper_trigger_cloud_on = yes;
 input upper_middle_cloud_on = yes;
 input upper_atr_cloud_on = yes;
 
+DefineGlobalColor("Close Cloud", Color.WHITE);
+DefineGlobalColor("Lower Trigger Cloud", Color.ORANGE);
+DefineGlobalColor("Lower Middle Cloud", Color.GRAY);
+DefineGlobalColor("Lower ATR Cloud", Color.WHITE);
+DefineGlobalColor("Upper Trigger Cloud", Color.CYAN);
+DefineGlobalColor("Upper Middle Cloud", Color.GRAY);
+DefineGlobalColor("Upper ATR Cloud", Color.WHITE);
+
 def previous_close = if use_todays_close then close(period = AggregationPeriod.DAY) else close(period = AggregationPeriod.DAY)[1];
 def atr = WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), atr_Length);
 def todays_high = Highest(high(period = AggregationPeriod.DAY), 1);
@@ -50,22 +58,22 @@ def upper_middle = (upper_trigger + upper_atr) / 2;
 
 # Labels
 AddLabel (yes, "DTR ($" + Round (dtr , 2) + ") is " + Round (dtr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if dtr_percent_of_atr <= 70 then Color.GREEN else if dtr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
-AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", Color.ORANGE);
-AddLabel (yes, "Calls > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", Color.CYAN);
+AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
+AddLabel (yes, "Calls > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 
 def cloud_size_factor = 0.01 * cloud_size;
 
 # Previous Close cloud
-AddCloud(if close_cloud_on then (previous_close - (atr * cloud_size_factor / 2)) else Double.NaN, (previous_close + (atr * cloud_size_factor / 2)), Color.WHITE, Color.WHITE);
+AddCloud(if close_cloud_on then (previous_close - (atr * cloud_size_factor / 2)) else Double.NaN, (previous_close + (atr * cloud_size_factor / 2)), GlobalColor("Close Cloud"), GlobalColor("Close Cloud"));
 
 # Trigger clouds
-AddCloud(if lower_trigger_cloud_on then lower_trigger else Double.NaN, (lower_trigger - (atr * cloud_size_factor)), Color.ORANGE, Color.ORANGE);
-AddCloud(if upper_trigger_cloud_on then upper_trigger else Double.NaN, (upper_trigger + (atr * cloud_size_factor)), Color.CYAN, Color.CYAN); 
+AddCloud(if lower_trigger_cloud_on then lower_trigger else Double.NaN, (lower_trigger - (atr * cloud_size_factor)), GlobalColor("Lower Trigger Cloud"), GlobalColor("Lower Trigger Cloud"));
+AddCloud(if upper_trigger_cloud_on then upper_trigger else Double.NaN, (upper_trigger + (atr * cloud_size_factor)), GlobalColor("Upper Trigger Cloud"), GlobalColor("Upper Trigger Cloud")); 
 
 # Middle clouds
-AddCloud(if lower_middle_cloud_on then lower_middle else double.nan, (lower_middle - (atr * cloud_size_factor)), Color.GRAY, Color.GRAY);
-AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_middle + (atr * cloud_size_factor)), Color.GRAY, Color.GRAY); 
+AddCloud(if lower_middle_cloud_on then lower_middle else double.nan, (lower_middle - (atr * cloud_size_factor)), GlobalColor("Lower Middle Cloud"), GlobalColor("Lower Middle Cloud"));
+AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_middle + (atr * cloud_size_factor)), GlobalColor("Upper Middle Cloud"), GlobalColor("Upper Middle Cloud")); 
 
 # +/- 1 ATR clouds
-AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), Color.WHITE, Color.WHITE);
-AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), Color.WHITE, Color.WHITE);
+AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), GlobalColor("Lower ATR Cloud"), GlobalColor("Lower ATR Cloud"));
+AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), GlobalColor("Upper ATR Cloud"), GlobalColor("Upper ATR Cloud"));
