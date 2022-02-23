@@ -20,7 +20,7 @@
 # - Use of today's close in order to find levels for tomorrow.
 # - Put trigger cloud
 # - Call trigger cloud
-# - +/- Midrange cloud (defaults to 61.8 fib when using default trigger value
+# - +/- Midrange cloud (defaults to 61.8 fib when using default trigger value)
 # - +/-1 ATR from previous close white clouds
 
 input atr_Length = 14;
@@ -68,4 +68,3 @@ AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_midd
 # +/- 1 ATR clouds
 AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size)), Color.WHITE, Color.WHITE);
 AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size)), Color.WHITE, Color.WHITE);
- 
