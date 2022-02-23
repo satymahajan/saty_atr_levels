@@ -51,7 +51,6 @@ lower_middle = (lower_trigger + lower_atr) / 2
 upper_middle = (upper_trigger + upper_atr) / 2
 
 // Plot levels
-plot((trigger_percentage * atr))
 plot(lower_atr, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
 plot(lower_middle, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
 plot(lower_trigger, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
