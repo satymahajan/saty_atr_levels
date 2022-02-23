@@ -26,6 +26,7 @@
 input atr_Length = 14;
 input trigger_percentage = 0.236;
 input use_todays_close = no;
+input cloud_size = 1.0;
 input close_cloud_on = yes;
 input lower_trigger_cloud_on = yes;
 input lower_middle_cloud_on = yes;
@@ -52,19 +53,19 @@ AddLabel (yes, "DTR ($" + Round (dtr , 2) + ") is " + Round (dtr_percent_of_atr,
 AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", Color.ORANGE);
 AddLabel (yes, "Calls > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", Color.CYAN);
 
-def cloud_size = 0.01;
+def cloud_size_factor = 0.01 * cloud_size;
 
 # Previous Close cloud
-AddCloud(if close_cloud_on then (previous_close - (atr * cloud_size / 2)) else Double.NaN, (previous_close + (atr * cloud_size / 2)), Color.WHITE, Color.WHITE);
+AddCloud(if close_cloud_on then (previous_close - (atr * cloud_size_factor / 2)) else Double.NaN, (previous_close + (atr * cloud_size_factor / 2)), Color.WHITE, Color.WHITE);
 
 # Trigger clouds
-AddCloud(if lower_trigger_cloud_on then lower_trigger else Double.NaN, (lower_trigger - (atr * cloud_size)), Color.ORANGE, Color.ORANGE);
-AddCloud(if upper_trigger_cloud_on then upper_trigger else Double.NaN, (upper_trigger + (atr * cloud_size)), Color.CYAN, Color.CYAN); 
+AddCloud(if lower_trigger_cloud_on then lower_trigger else Double.NaN, (lower_trigger - (atr * cloud_size_factor)), Color.ORANGE, Color.ORANGE);
+AddCloud(if upper_trigger_cloud_on then upper_trigger else Double.NaN, (upper_trigger + (atr * cloud_size_factor)), Color.CYAN, Color.CYAN); 
 
 # Middle clouds
-AddCloud(if lower_middle_cloud_on then lower_middle else double.nan, (lower_middle - (atr * cloud_size)), Color.GRAY, Color.GRAY);
-AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_middle + (atr * cloud_size)), Color.GRAY, Color.GRAY); 
+AddCloud(if lower_middle_cloud_on then lower_middle else double.nan, (lower_middle - (atr * cloud_size_factor)), Color.GRAY, Color.GRAY);
+AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_middle + (atr * cloud_size_factor)), Color.GRAY, Color.GRAY); 
 
 # +/- 1 ATR clouds
-AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size)), Color.WHITE, Color.WHITE);
-AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size)), Color.WHITE, Color.WHITE);
+AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), Color.WHITE, Color.WHITE);
+AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), Color.WHITE, Color.WHITE);
