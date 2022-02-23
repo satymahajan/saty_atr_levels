@@ -8,29 +8,22 @@
 // Adam Sliver, and others.
 //
 // Features:
-// Shows DTR vs ATR for the day
-// Shows 2 labels:
-// - 23.6% of ATR put trigger using previous close
-// and -1 ATR bottom range value using previous close
-// - 23.6% of ATR call trigger using previous close
-// and +1 ATR top range value using previous close
+// - Trigger clouds for going long/short intraday @ 23.6 fib
+// - Target levels including 61.8 fib and +/- 1 ATR (from previous close)
 // Configuration:
 // - ATR length
 // - Trigger Percentage (0 - 1), default is 23.6 fib
-// - Use of today's close in order to find levels for tomorrow.
 // - Put trigger cloud
 // - Call trigger cloud
 // - +/- Midrange cloud (defaults to 61.8 fib when using default trigger value)
 // - +/-1 ATR from previous close white clouds
 
 //@version=4
-study("Saty ATR Levels", shorttitle = "SATY ATR", overlay = true)
+study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
 
 // Options
 atr_length = input(14, "ATR Length")
-trigger_percentage = input(0.236, "Trigger Percentage")
-// TODO: Enable use of current close
-use_todays_close = input(false, "Use Today's Close")
+trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
 cloud_size = input(4, "Cloud Size")
 close_cloud_on = input(true, "Close Cloud")
 lower_trigger_cloud_on = input(true, "Lower Trigger Cloud")
@@ -48,8 +41,7 @@ upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud")
 upper_atr_cloud_color = input(color.white, "Upper ATR Cloud")
 
 // Data
-// TODO: Enable use of current close
-previous_close = security(syminfo.tickerid, 'D', close)
+previous_close = security(syminfo.tickerid, 'D', close) 
 atr = security(syminfo.tickerid, 'D', atr(atr_length))
 lower_trigger = previous_close - (trigger_percentage * atr)
 upper_trigger = previous_close + (trigger_percentage * atr)
@@ -58,17 +50,12 @@ upper_atr = previous_close + atr
 lower_middle = (lower_trigger + lower_atr) / 2
 upper_middle = (upper_trigger + upper_atr) / 2
 
-// Previous Close cloud
-plot(previous_close, color=color.new(close_cloud_color, 50), linewidth = cloud_size)
-
-// Trigger clouds
-plot(lower_trigger, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(upper_trigger, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
-
-// Middle clouds
-plot(lower_middle, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
-plot(upper_middle, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
-
-// +/- 1 ATR clouds
+// Plot levels
+plot((trigger_percentage * atr))
 plot(lower_atr, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
+plot(lower_middle, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
+plot(lower_trigger, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(previous_close, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
+plot(upper_trigger, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(upper_middle, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
 plot(upper_atr, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
