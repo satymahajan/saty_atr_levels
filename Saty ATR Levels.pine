@@ -41,8 +41,9 @@ upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud")
 upper_atr_cloud_color = input(color.white, "Upper ATR Cloud")
 
 // Data
-previous_close = security(syminfo.tickerid, 'D', close) 
-atr = security(syminfo.tickerid, 'D', atr(atr_length))
+ticker = tickerid(syminfo.prefix, syminfo.ticker, session=session.regular)
+previous_close = security(ticker,"D",close[1],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+atr = security(ticker,"D",atr(atr_length)[1],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
 lower_trigger = previous_close - (trigger_percentage * atr)
 upper_trigger = previous_close + (trigger_percentage * atr)
 lower_atr = previous_close - atr
