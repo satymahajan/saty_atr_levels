@@ -31,17 +31,21 @@ input close_cloud_on = yes;
 input lower_trigger_cloud_on = yes;
 input lower_middle_cloud_on = yes;
 input lower_atr_cloud_on = yes;
+input lower_extension_cloud_on = no;
 input upper_trigger_cloud_on = yes;
 input upper_middle_cloud_on = yes;
 input upper_atr_cloud_on = yes;
+input upper_extension_cloud_on = no;
 
 DefineGlobalColor("Close Cloud", Color.WHITE);
 DefineGlobalColor("Lower Trigger Cloud", Color.ORANGE);
 DefineGlobalColor("Lower Middle Cloud", Color.GRAY);
 DefineGlobalColor("Lower ATR Cloud", Color.WHITE);
+DefineGlobalColor("Lower Extension Cloud", Color.GRAY);
 DefineGlobalColor("Upper Trigger Cloud", Color.CYAN);
 DefineGlobalColor("Upper Middle Cloud", Color.GRAY);
 DefineGlobalColor("Upper ATR Cloud", Color.WHITE);
+DefineGlobalColor("Upper Extension Cloud", Color.GRAY);
 
 def previous_close = close(period = AggregationPeriod.DAY)[if use_todays_close then 0 else 1];
 def atr = Round(WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), atr_Length)[if use_todays_close then 0 else 1],2);
@@ -55,6 +59,8 @@ def lower_atr = previous_close - atr;
 def upper_atr = previous_close + atr;
 def lower_middle = (lower_trigger + lower_atr) / 2;
 def upper_middle = (upper_trigger + upper_atr) / 2;
+def lower_extension = (lower_atr) - (atr * 0.618);
+def upper_extension = (upper_atr) + (atr * 0.618);
 
 # Labels
 AddLabel (yes, "DTR ($" + Round (dtr , 2) + ") is " + Round (dtr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if dtr_percent_of_atr <= 70 then Color.GREEN else if dtr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
@@ -77,3 +83,7 @@ AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_midd
 # +/- 1 ATR clouds
 AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), GlobalColor("Lower ATR Cloud"), GlobalColor("Lower ATR Cloud"));
 AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), GlobalColor("Upper ATR Cloud"), GlobalColor("Upper ATR Cloud"));
+
+# Fib Extension clouds
+AddCloud(if lower_extension_cloud_on then lower_extension else Double.NaN, (lower_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Cloud"), GlobalColor("Lower Extension Cloud"));
+AddCloud(if upper_extension_cloud_on then upper_extension else Double.NaN, (upper_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Cloud"), GlobalColor("Upper Extension Cloud"));
