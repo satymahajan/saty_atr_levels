@@ -25,28 +25,24 @@ study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
 use_todays_close = input(false, "Use Today's Close")
-
 close_cloud_on = input(true, "Close Cloud")
 close_cloud_color = input(color.white, "Close Cloud Color")
-
 lower_trigger_cloud_on = input(true, "Lower Trigger Cloud")
 lower_trigger_cloud_color = input(color.yellow, "Lower Trigger Cloud Color")
-
 lower_middle_cloud_on = input(true, "Lower Middle Cloud")
 lower_middle_cloud_color = input(color.gray, "Lower Middle Cloud Color")
-
 lower_atr_cloud_on = input(true, "Lower ATR Cloud")
 lower_atr_cloud_color = input(color.white, "Lower ATR Cloud Color")
-
+lower_extension_cloud_on = input(false, "Lower Extension Cloud")
+lower_extension_cloud_color = input(color.gray, "Lower Extension Cloud Color")
 upper_trigger_cloud_on = input(true, "Upper Trigger Cloud")
 upper_trigger_cloud_color = input(color.aqua, "Upper Trigger Cloud Color")
-
 upper_middle_cloud_on = input(true, "Upper Middle Cloud")
 upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud Color")
-
 upper_atr_cloud_on = input(true, "Upper ATR Cloud")
 upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
-
+upper_extension_cloud_on = input(false, "Upper Extension Cloud")
+upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
 cloud_size = input(4, "Cloud Size")
 
 // Data
@@ -60,6 +56,8 @@ lower_atr = previous_close - atr
 upper_atr = previous_close + atr
 lower_middle = (lower_trigger + lower_atr) / 2
 upper_middle = (upper_trigger + upper_atr) / 2
+lower_extension = (lower_atr) - (atr * 0.618)
+upper_extension = (upper_atr) + (atr * 0.618)
 
 // Add Labels
 var tbl = table.new(position.top_right, 2, 1)
@@ -68,6 +66,7 @@ if (barstate.islast)
     table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
 
 // Plot levels
+plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
 plot(lower_atr_cloud_on ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
 plot(lower_middle_cloud_on ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
 plot(lower_trigger_cloud_on ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
@@ -75,3 +74,4 @@ plot(close_cloud_on ? previous_close : na, color= color.new(close_cloud_color, 5
 plot(upper_trigger_cloud_on ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
 plot(upper_middle_cloud_on ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
 plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
+plot(upper_extension_cloud_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
