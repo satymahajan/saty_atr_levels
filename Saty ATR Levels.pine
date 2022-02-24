@@ -56,8 +56,8 @@ upper_middle = (upper_trigger + upper_atr) / 2
 // Add Labels
 var tbl = table.new(position.top_right, 2, 1)
 if (barstate.islast)
-    table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color, width = 20, height = 4)
-    table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color,   width = 20, height = 4)
+    table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color, width = 20, height = 3.14)
+    table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color,   width = 20, height = 3.14)
 
 // Plot levels
 plot(lower_atr, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
