@@ -24,6 +24,7 @@ study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
 // Options
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
+use_todays_close = input(false, "Use Today's Close")
 cloud_size = input(4, "Cloud Size")
 close_cloud_on = input(true, "Close Cloud")
 lower_trigger_cloud_on = input(true, "Lower Trigger Cloud")
@@ -41,9 +42,10 @@ upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud")
 upper_atr_cloud_color = input(color.white, "Upper ATR Cloud")
 
 // Data
+day_index = use_todays_close ? 0 : 1
 ticker = tickerid(syminfo.prefix, syminfo.ticker, session=session.regular)
-previous_close = security(ticker,"D",close[1],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
-atr = security(ticker,"D",atr(atr_length)[1],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+previous_close = security(ticker,"D",close[day_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+atr = security(ticker,"D",atr(atr_length)[day_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
 lower_trigger = previous_close - (trigger_percentage * atr)
 upper_trigger = previous_close + (trigger_percentage * atr)
 lower_atr = previous_close - atr
