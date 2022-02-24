@@ -25,21 +25,29 @@ study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
 use_todays_close = input(false, "Use Today's Close")
-cloud_size = input(4, "Cloud Size")
+
 close_cloud_on = input(true, "Close Cloud")
+close_cloud_color = input(color.white, "Close Cloud Color")
+
 lower_trigger_cloud_on = input(true, "Lower Trigger Cloud")
+lower_trigger_cloud_color = input(color.yellow, "Lower Trigger Cloud Color")
+
 lower_middle_cloud_on = input(true, "Lower Middle Cloud")
+lower_middle_cloud_color = input(color.gray, "Lower Middle Cloud Color")
+
 lower_atr_cloud_on = input(true, "Lower ATR Cloud")
-upper_trigger_cloud_on = input(true, "Upper Trigger Cloude")
+lower_atr_cloud_color = input(color.white, "Lower ATR Cloud Color")
+
+upper_trigger_cloud_on = input(true, "Upper Trigger Cloud")
+upper_trigger_cloud_color = input(color.aqua, "Upper Trigger Cloud Color")
+
 upper_middle_cloud_on = input(true, "Upper Middle Cloud")
+upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud Color")
+
 upper_atr_cloud_on = input(true, "Upper ATR Cloud")
-close_cloud_color = input(color.white, "Close Cloud")
-lower_trigger_cloud_color = input(color.yellow, "Lower Trigger Cloud")
-lower_middle_cloud_color = input(color.gray, "Lower Middle Cloud")
-lower_atr_cloud_color = input(color.white, "Lower ATR Cloud")
-upper_trigger_cloud_color = input(color.aqua, "Upper Trigger Cloud")
-upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud")
-upper_atr_cloud_color = input(color.white, "Upper ATR Cloud")
+upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
+
+cloud_size = input(4, "Cloud Size")
 
 // Data
 day_index = use_todays_close ? 0 : 1
@@ -56,14 +64,14 @@ upper_middle = (upper_trigger + upper_atr) / 2
 // Add Labels
 var tbl = table.new(position.top_right, 2, 1)
 if (barstate.islast)
-    table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color, width = 20, height = 3.14)
-    table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color,   width = 20, height = 3.14)
+    table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
+    table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
 
 // Plot levels
-plot(lower_atr, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
-plot(lower_middle, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
-plot(lower_trigger, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(previous_close, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
-plot(upper_trigger, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(upper_middle, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
-plot(upper_atr, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
+plot(lower_atr_cloud_on ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
+plot(lower_middle_cloud_on ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
+plot(lower_trigger_cloud_on ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(close_cloud_on ? previous_close : na, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
+plot(upper_trigger_cloud_on ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(upper_middle_cloud_on ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
+plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
