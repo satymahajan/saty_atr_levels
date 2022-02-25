@@ -43,7 +43,7 @@ upper_atr_cloud_on = input(true, "Upper ATR Cloud")
 upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
 upper_extension_cloud_on = input(false, "Upper Extension Cloud")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
-cloud_size = input(4, "Cloud Size")
+cloud_size = input(2, "Cloud Size")
 show_only_today = input(true, "Show Only Today")
 
 // Data
