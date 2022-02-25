@@ -69,14 +69,7 @@ if (barstate.islast)
 // Plot levels
 showCloud(option_on, today_on) =>
     is_today = year(timenow) == year(time) and month(timenow) == month(time) and dayofmonth(timenow) == dayofmonth(time)
-    if option_on
-        if today_on
-            if is_today
-                true
-        else
-            true        
-    else
-        false
+    (option_on and not today_on) or (option_on and today_on and is_today)
 
 plot(showCloud(lower_extension_cloud_on, show_only_today) ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
 plot(showCloud(lower_atr_cloud_on, show_only_today) ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
