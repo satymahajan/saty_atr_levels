@@ -44,6 +44,7 @@ upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
 upper_extension_cloud_on = input(false, "Upper Extension Cloud")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
 cloud_size = input(4, "Cloud Size")
+show_only_today = input(true, "Show Only Today")
 
 // Data
 day_index = use_todays_close ? 0 : 1
@@ -64,14 +65,25 @@ var tbl = table.new(position.top_right, 2, 1)
 if (barstate.islast)
     table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
     table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
-
+    
 // Plot levels
-plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
-plot(lower_atr_cloud_on ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
-plot(lower_middle_cloud_on ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
-plot(lower_trigger_cloud_on ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(close_cloud_on ? previous_close : na, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
-plot(upper_trigger_cloud_on ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(upper_middle_cloud_on ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
-plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
-plot(upper_extension_cloud_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
+showCloud(option_on, today_on) =>
+    is_today = year(timenow) == year(time) and month(timenow) == month(time) and dayofmonth(timenow) == dayofmonth(time)
+    if option_on
+        if today_on
+            if is_today
+                true
+        else
+            true        
+    else
+        false
+
+plot(showCloud(lower_extension_cloud_on, show_only_today) ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(lower_atr_cloud_on, show_only_today) ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(lower_middle_cloud_on, show_only_today) ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(lower_trigger_cloud_on, show_only_today) ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(close_cloud_on, show_only_today) ? previous_close : na, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(upper_trigger_cloud_on, show_only_today) ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(upper_middle_cloud_on, show_only_today) ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(upper_atr_cloud_on, show_only_today) ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
+plot(showCloud(upper_extension_cloud_on, show_only_today) ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
