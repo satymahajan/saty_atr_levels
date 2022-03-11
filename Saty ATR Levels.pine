@@ -7,24 +7,25 @@
 // Based on my own ideas and ideas from Ripster, drippy2hard, 
 // Adam Sliver, and others.
 //
-// Features:
-// - Trigger clouds for going long/short intraday @ 23.6 fib
-// - Target levels including 61.8 fib and +/- 1 ATR (from previous close)
-// Configuration:
-// - ATR length
-// - Trigger Percentage (0 - 1), default is 23.6 fib
-// - Put trigger cloud
-// - Call trigger cloud
-// - +/- Midrange cloud (defaults to 61.8 fib when using default trigger value)
-// - +/-1 ATR from previous close white clouds
+//Features:
+// - Day, Swing, Position trading modes
+// - Range against ATR for each period
+// - Put and call trigger levels
+// - Mid-range level
+// - Full-range levels
+// - Optional Extension Level
 
 //@version=4
 study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
 
 // Options
+day_trading = "Day"
+swing_trading = "Swing"
+position_trading = "Position"
+trading_type = input(day_trading, "Trading Type", options=[day_trading, swing_trading, position_trading])
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
-use_todays_close = input(false, "Use Today's Close")
+use_current_close = input(false, "Use Current Close")
 close_cloud_on = input(true, "Close Cloud")
 close_cloud_color = input(color.white, "Close Cloud Color")
 lower_trigger_cloud_on = input(true, "Lower Trigger Cloud")
@@ -44,13 +45,24 @@ upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
 upper_extension_cloud_on = input(false, "Upper Extension Cloud")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
 cloud_size = input(2, "Cloud Size")
-show_only_today = input(true, "Show Only Today")
+
+// Set the appropriate timeframe based on trading mode
+timeframe_func() => 
+    timeframe = "D"
+    if trading_type == day_trading
+        timeframe := "D"
+    else if trading_type == swing_trading
+        timeframe := "M"
+    else if trading_type == position_trading
+        timeframe := "3M"
+    else
+        timeframe := "D"
 
 // Data
-day_index = use_todays_close ? 0 : 1
+period_index = use_current_close ? 0 : 1
 ticker = tickerid(syminfo.prefix, syminfo.ticker, session=session.regular)
-previous_close = security(ticker,"D",close[day_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
-atr = security(ticker,"D",atr(atr_length)[day_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+previous_close = security(ticker,timeframe_func(),close[period_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+atr = security(ticker,timeframe_func(),atr(atr_length)[period_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
 lower_trigger = previous_close - (trigger_percentage * atr)
 upper_trigger = previous_close + (trigger_percentage * atr)
 lower_atr = previous_close - atr
@@ -65,18 +77,15 @@ var tbl = table.new(position.top_right, 2, 1)
 if (barstate.islast)
     table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
     table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
-    
-// Plot levels
-showCloud(option_on, today_on) =>
-    is_today = year(timenow) == year(time) and month(timenow) == month(time) and dayofmonth(timenow) == dayofmonth(time)
-    (option_on and not today_on) or (option_on and today_on and is_today)
 
-plot(showCloud(lower_extension_cloud_on, show_only_today) ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(lower_atr_cloud_on, show_only_today) ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(lower_middle_cloud_on, show_only_today) ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(lower_trigger_cloud_on, show_only_today) ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(close_cloud_on, show_only_today) ? previous_close : na, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(upper_trigger_cloud_on, show_only_today) ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(upper_middle_cloud_on, show_only_today) ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(upper_atr_cloud_on, show_only_today) ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
-plot(showCloud(upper_extension_cloud_on, show_only_today) ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
+// Add Clouds
+plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
+plot(lower_atr_cloud_on ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
+plot(lower_middle_cloud_on ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
+plot(lower_trigger_cloud_on ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(close_cloud_on ? previous_close : na, color= color.new(close_cloud_color, 50), linewidth = cloud_size)
+plot(upper_trigger_cloud_on ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
+plot(upper_middle_cloud_on ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
+plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
+plot(upper_extension_cloud_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
+ 
