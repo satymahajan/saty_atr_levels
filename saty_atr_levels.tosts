@@ -8,24 +8,17 @@
 # Adam Sliver, and others.
 #
 # Features:
-# Shows DTR vs ATR for the day
-# Shows 2 labels:
-# - 23.6% of ATR put trigger using previous close
-# and -1 ATR bottom range value using previous close
-# - 23.6% of ATR call trigger using previous close
-# and +1 ATR top range value using previous close
-# Configuration:
-# - ATR length
-# - Trigger Percentage (0 - 1), default is 23.6 fib
-# - Use of today's close in order to find levels for tomorrow.
-# - Put trigger cloud
-# - Call trigger cloud
-# - +/- Midrange cloud (defaults to 61.8 fib when using default trigger value)
-# - +/-1 ATR from previous close white clouds
+# - Day, Swing, Position trading modes
+# - Range against ATR for each period
+# - Put and call trigger levels
+# - Mid-range level
+# - Full-range levels
+# - Optional Extension Level
 
+input trading_type = {default Day, Swing, Position};
 input atr_Length = 14;
 input trigger_percentage = 0.236;
-input use_todays_close = no;
+input use_current_close = no;
 input cloud_size = 1.0;
 input close_cloud_on = yes;
 input lower_trigger_cloud_on = yes;
@@ -47,10 +40,20 @@ DefineGlobalColor("Upper Middle Cloud", Color.GRAY);
 DefineGlobalColor("Upper ATR Cloud", Color.WHITE);
 DefineGlobalColor("Upper Extension Cloud", Color.GRAY);
 
-def previous_close = close(period = AggregationPeriod.DAY)[if use_todays_close then 0 else 1];
-def atr = Round(WildersAverage(TrueRange(high(period = AggregationPeriod.DAY), close(period = AggregationPeriod.DAY), low(period = AggregationPeriod.DAY)), atr_Length)[if use_todays_close then 0 else 1],2);
-def todays_high = Highest(high(period = AggregationPeriod.DAY), 1);
-def todays_low = Lowest(low(period = AggregationPeriod.DAY), 1);
+def trading_period;
+switch (trading_type) {
+case Day:
+    trading_period = AggregationPeriod.DAY;
+case Swing:
+    trading_period = AggregationPeriod.MONTH;
+case Position:
+    trading_period = AggregationPeriod.QUARTER;
+}
+
+def previous_close = close(period = trading_period)[if use_current_close then 0 else 1];
+def atr = Round(WildersAverage(TrueRange(high(period = trading_period), close(period = trading_period), low(period = trading_period)), atr_Length)[if use_current_close then 0 else 1], 2);
+def todays_high = Highest(high(period = trading_period), 1);
+def todays_low = Lowest(low(period = trading_period), 1);
 def dtr = todays_high - todays_low;
 def dtr_percent_of_atr = Round((dtr / atr) * 100, 0);
 def lower_trigger = previous_close - (trigger_percentage * atr);
@@ -63,7 +66,7 @@ def lower_extension = (lower_atr) - (atr * 0.618);
 def upper_extension = (upper_atr) + (atr * 0.618);
 
 # Labels
-AddLabel (yes, "DTR ($" + Round (dtr , 2) + ") is " + Round (dtr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if dtr_percent_of_atr <= 70 then Color.GREEN else if dtr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
+AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else "Day ") + "Range ($" + Round (dtr , 2) + ") is " + Round (dtr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if dtr_percent_of_atr <= 70 then Color.GREEN else if dtr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
 AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 AddLabel (yes, "Calls > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 
@@ -77,8 +80,8 @@ AddCloud(if lower_trigger_cloud_on then lower_trigger else Double.NaN, (lower_tr
 AddCloud(if upper_trigger_cloud_on then upper_trigger else Double.NaN, (upper_trigger + (atr * cloud_size_factor)), GlobalColor("Upper Trigger Cloud"), GlobalColor("Upper Trigger Cloud")); 
 
 # Middle clouds
-AddCloud(if lower_middle_cloud_on then lower_middle else double.nan, (lower_middle - (atr * cloud_size_factor)), GlobalColor("Lower Middle Cloud"), GlobalColor("Lower Middle Cloud"));
-AddCloud(if upper_middle_cloud_on then upper_middle else double.nan, (upper_middle + (atr * cloud_size_factor)), GlobalColor("Upper Middle Cloud"), GlobalColor("Upper Middle Cloud")); 
+AddCloud(if lower_middle_cloud_on then lower_middle else Double.NaN, (lower_middle - (atr * cloud_size_factor)), GlobalColor("Lower Middle Cloud"), GlobalColor("Lower Middle Cloud"));
+AddCloud(if upper_middle_cloud_on then upper_middle else Double.NaN, (upper_middle + (atr * cloud_size_factor)), GlobalColor("Upper Middle Cloud"), GlobalColor("Upper Middle Cloud")); 
 
 # +/- 1 ATR clouds
 AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), GlobalColor("Lower ATR Cloud"), GlobalColor("Lower ATR Cloud"));
