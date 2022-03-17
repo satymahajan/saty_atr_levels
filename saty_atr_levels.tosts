@@ -52,21 +52,21 @@ case Position:
 
 def previous_close = close(period = trading_period)[if use_current_close then 0 else 1];
 def atr = Round(WildersAverage(TrueRange(high(period = trading_period), close(period = trading_period), low(period = trading_period)), atr_Length)[if use_current_close then 0 else 1], 2);
-def todays_high = Highest(high(period = trading_period), 1);
-def todays_low = Lowest(low(period = trading_period), 1);
-def dtr = todays_high - todays_low;
-def dtr_percent_of_atr = Round((dtr / atr) * 100, 0);
+def period_high = Highest(high(period = trading_period), 1);
+def period_low = Lowest(low(period = trading_period), 1);
+def tr = period_high - period_low;
+def tr_percent_of_atr = Round((tr / atr) * 100, 0);
 def lower_trigger = previous_close - (trigger_percentage * atr);
 def upper_trigger = previous_close + (trigger_percentage * atr);
 def lower_atr = previous_close - atr;
 def upper_atr = previous_close + atr;
-def lower_middle = (lower_trigger + lower_atr) / 2;
-def upper_middle = (upper_trigger + upper_atr) / 2;
+def lower_middle = previous_close - (atr * 0.618);
+def upper_middle = previous_close + (atr * 0.618);
 def lower_extension = (lower_atr) - (atr * 0.618);
 def upper_extension = (upper_atr) + (atr * 0.618);
 
 # Labels
-AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else "Day ") + "Range ($" + Round (dtr , 2) + ") is " + Round (dtr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if dtr_percent_of_atr <= 70 then Color.GREEN else if dtr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
+AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else "Day ") + "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
 AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 AddLabel (yes, "Calls > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 
