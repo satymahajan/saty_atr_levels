@@ -7,7 +7,7 @@
 // Based on my own ideas and ideas from Ripster, drippy2hard, 
 // Adam Sliver, and others.
 //
-//Features:
+// Features:
 // - Day, Swing, Position trading modes
 // - Range against ATR for each period
 // - Put and call trigger levels
