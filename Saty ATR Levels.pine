@@ -67,16 +67,16 @@ lower_trigger = previous_close - (trigger_percentage * atr)
 upper_trigger = previous_close + (trigger_percentage * atr)
 lower_atr = previous_close - atr
 upper_atr = previous_close + atr
-lower_middle = (lower_trigger + lower_atr) / 2
-upper_middle = (upper_trigger + upper_atr) / 2
+lower_middle = previous_close - (atr * 0.618)
+upper_middle = previous_close + (atr * 0.618)
 lower_extension = (lower_atr) - (atr * 0.618)
 upper_extension = (upper_atr) + (atr * 0.618)
 
 // Add Labels
-var tbl = table.new(position.top_right, 2, 1)
+var tbl = table.new(position.top_right, 1, 2)
 if (barstate.islast)
     table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
-    table.cell(tbl, 1, 0, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
+    table.cell(tbl, 0, 1, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
 
 // Add Clouds
 plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
