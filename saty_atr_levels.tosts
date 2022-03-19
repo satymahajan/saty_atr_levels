@@ -67,8 +67,8 @@ def upper_extension = (upper_atr) + (atr * 0.618);
 
 # Labels
 AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else "Day ") + "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
-AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 AddLabel (yes, "Calls > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
+AddLabel (yes, "Puts < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 
 def cloud_size_factor = 0.01 * cloud_size;
 
