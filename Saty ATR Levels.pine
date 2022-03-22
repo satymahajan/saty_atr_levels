@@ -73,10 +73,11 @@ lower_extension = (lower_atr) - (atr * 0.618)
 upper_extension = (upper_atr) + (atr * 0.618)
 
 // Add Labels
-var tbl = table.new(position.top_right, 1, 2)
+var tbl = table.new(position.top_right, 1, 3)
 if (barstate.islast)
-    table.cell(tbl, 0, 0, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
+    table.cell(tbl, 0, 0, "Saty ATR Levels Info", bgcolor = color.black, text_color = color.white)
     table.cell(tbl, 0, 1, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
+    table.cell(tbl, 0, 2, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
 
 // Add Clouds
 plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
@@ -88,4 +89,3 @@ plot(upper_trigger_cloud_on ? upper_trigger : na, color = color.new(upper_trigge
 plot(upper_middle_cloud_on ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
 plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
 plot(upper_extension_cloud_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
- 
