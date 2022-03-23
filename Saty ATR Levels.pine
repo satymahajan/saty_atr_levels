@@ -23,6 +23,7 @@ day_trading = "Day"
 swing_trading = "Swing"
 position_trading = "Position"
 trading_type = input(day_trading, "Trading Type", options=[day_trading, swing_trading, position_trading])
+use_options_labels = input(true, "Use Options Labels")
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
 use_current_close = input(false, "Use Current Close")
@@ -45,8 +46,6 @@ upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
 upper_extension_cloud_on = input(false, "Upper Extension Cloud")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
 cloud_size = input(2, "Cloud Size")
-tr_vs_atr_color = color.green
-trading_mode = "Day"
 
 // Set the appropriate timeframe based on trading mode
 timeframe_func() => 
@@ -79,6 +78,7 @@ lower_extension = (lower_atr) - (atr * 0.618)
 upper_extension = (upper_atr) + (atr * 0.618)
 
 // Add Labels
+tr_vs_atr_color = color.green
 if tr_percent_of_atr <= 70 
     tr_vs_atr_color := color.green 
 else if tr_percent_of_atr >= 90 
@@ -86,6 +86,7 @@ else if tr_percent_of_atr >= 90
 else
     tr_vs_atr_color := color.orange
     
+trading_mode = "Day"
 if trading_type == day_trading
     trading_mode := "Day"
 else if trading_type == swing_trading
@@ -95,12 +96,21 @@ else if trading_type == position_trading
 else
     trading_mode := ""
 
+long_label = ""
+short_label = ""
+if use_options_labels
+    long_label := "Calls"
+    short_label := "Puts"
+else 
+    long_label := "Long"
+    short_label := "Short"
+
 var tbl = table.new(position.top_right, 1, 4)
 if (barstate.islast)
     table.cell(tbl, 0, 0, "Saty ATR Levels Info", bgcolor = color.black, text_color = color.white)
     table.cell(tbl, 0 ,1, trading_mode + " Range ($" + tostring(range, '#.##') + ") is " + tostring(tr_percent_of_atr, '#.#') + "% of ATR ($"+ tostring(atr, '#.##') + ")", bgcolor = tr_vs_atr_color)
-    table.cell(tbl, 0, 2, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
-    table.cell(tbl, 0, 3, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
+    table.cell(tbl, 0, 2, long_label + " > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
+    table.cell(tbl, 0, 3, short_label + " < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
 
 // Add Clouds
 plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
