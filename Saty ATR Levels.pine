@@ -46,6 +46,7 @@ upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
 upper_extension_cloud_on = input(false, "Upper Extension Cloud")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
 cloud_size = input(2, "Cloud Size")
+show_info = input(true, "Show Info Label")
 
 // Set the appropriate timeframe based on trading mode
 timeframe_func() => 
@@ -106,7 +107,7 @@ else
     short_label := "Short"
 
 var tbl = table.new(position.top_right, 1, 4)
-if (barstate.islast)
+if (barstate.islast and show_info)
     table.cell(tbl, 0, 0, "Saty ATR Levels Info", bgcolor = color.black, text_color = color.white)
     table.cell(tbl, 0 ,1, trading_mode + " Range ($" + tostring(range, '#.##') + ") is " + tostring(tr_percent_of_atr, '#.#') + "% of ATR ($"+ tostring(atr, '#.##') + ")", bgcolor = tr_vs_atr_color)
     table.cell(tbl, 0, 2, long_label + " > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
