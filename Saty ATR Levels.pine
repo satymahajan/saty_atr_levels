@@ -98,7 +98,7 @@ else
 var tbl = table.new(position.top_right, 1, 4)
 if (barstate.islast)
     table.cell(tbl, 0, 0, "Saty ATR Levels Info", bgcolor = color.black, text_color = color.white)
-    table.cell(tbl, 0 ,1, trading_mode + " Range is ($" + tostring(range, '#.##') + ") is " + tostring(tr_percent_of_atr, '#.#') + "% of ATR ($"+ tostring(atr, '#.##') + ")", bgcolor = tr_vs_atr_color)
+    table.cell(tbl, 0 ,1, trading_mode + " Range ($" + tostring(range, '#.##') + ") is " + tostring(tr_percent_of_atr, '#.#') + "% of ATR ($"+ tostring(atr, '#.##') + ")", bgcolor = tr_vs_atr_color)
     table.cell(tbl, 0, 2, "Calls > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
     table.cell(tbl, 0, 3, "Puts < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
 
