@@ -15,7 +15,7 @@
 # - Full-range levels
 # - Optional Extension Level
 
-input trading_type = {default Day, Swing, Position};
+input trading_type = {default "Day", "Multiday", "Swing", "Position"};
 input use_options_labels = yes;
 input atr_Length = 14;
 input trigger_percentage = 0.236;
@@ -43,11 +43,13 @@ DefineGlobalColor("Upper Extension Cloud", Color.GRAY);
 
 def trading_period;
 switch (trading_type) {
-case Day:
+case "Day":
     trading_period = AggregationPeriod.DAY;
-case Swing:
+case "Multiday":
+    trading_period = AggregationPeriod.WEEK;
+case "Swing":
     trading_period = AggregationPeriod.MONTH;
-case Position:
+case "Position":
     trading_period = AggregationPeriod.QUARTER;
 }
 
@@ -68,7 +70,7 @@ def lower_extension = (lower_atr) - (atr * 0.618);
 def upper_extension = (upper_atr) + (atr * 0.618);
 
 # Labels
-AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else "Day ") + "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
+AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else "Day ") + "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
 AddLabel (yes, (if use_options_labels then "Calls" else "Long") + " > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 AddLabel (yes, (if use_options_labels then "Puts" else "Short") + " < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 
