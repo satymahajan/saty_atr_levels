@@ -20,9 +20,10 @@ study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
 
 // Options
 day_trading = "Day"
+multiday_trading = "Multiday"
 swing_trading = "Swing"
 position_trading = "Position"
-trading_type = input(day_trading, "Trading Type", options=[day_trading, swing_trading, position_trading])
+trading_type = input(day_trading, "Trading Type", options=[day_trading, multiday_trading, swing_trading, position_trading])
 use_options_labels = input(true, "Use Options Labels")
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
@@ -53,6 +54,8 @@ timeframe_func() =>
     timeframe = "D"
     if trading_type == day_trading
         timeframe := "D"
+    else if trading_type == multiday_trading
+        timeframe := "W"
     else if trading_type == swing_trading
         timeframe := "M"
     else if trading_type == position_trading
@@ -90,6 +93,8 @@ else
 trading_mode = "Day"
 if trading_type == day_trading
     trading_mode := "Day"
+else if trading_type == multiday_trading
+    trading_mode := "Multiday"
 else if trading_type == swing_trading
     trading_mode := "Swing"
 else if trading_type == position_trading
