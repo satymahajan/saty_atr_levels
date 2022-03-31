@@ -8,7 +8,7 @@
 // Adam Sliver, and others.
 //
 // Features:
-// - Day, Swing, Position trading modes
+// - Day, Multiday, Swing, and Position trading modes
 // - Range against ATR for each period
 // - Put and call trigger levels
 // - Mid-range level
@@ -48,6 +48,10 @@ upper_extension_cloud_on = input(false, "Upper Extension Cloud")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
 cloud_size = input(2, "Cloud Size")
 show_info = input(true, "Show Info Label")
+fluid_trend_low_ema = input(5, "Fluid Trend EMA Low")
+fluid_trend_high_ema = input(12, "Fluid Trend EMA High")
+trend_low_ema = input(34, "Trend EMA Low")
+trend_high_ema = input(50, "Trend EMA High")
 
 // Set the appropriate timeframe based on trading mode
 timeframe_func() => 
@@ -62,6 +66,17 @@ timeframe_func() =>
         timeframe := "3M"
     else
         timeframe := "D"
+
+// Trend
+price = close
+fluid_trend_low = ema(price, fluid_trend_low_ema)
+fluid_trend_high = ema(price, fluid_trend_high_ema)
+fluid_bullish = price >= fluid_trend_low and price >= fluid_trend_high
+fluid_bearish = price <= fluid_trend_low and price <= fluid_trend_high
+trend_low = ema(price, trend_low_ema)
+trend_high = ema(price, trend_high_ema)
+bullish = price >= trend_low and price >= trend_high
+bearish = price <= trend_low and price <= trend_high
 
 // Data
 period_index = use_current_close ? 0 : 1
@@ -111,12 +126,21 @@ else
     long_label := "Long"
     short_label := "Short"
 
-var tbl = table.new(position.top_right, 1, 4)
+trend_color = color.orange
+if fluid_bullish and bullish
+    trend_color := color.green
+else if fluid_bearish and bearish
+    trend_color := color.red
+else
+    trend_color := color.orange
+
+var tbl = table.new(position.top_right, 1, 5)
 if (barstate.islast and show_info)
     table.cell(tbl, 0, 0, "Saty ATR Levels Info", bgcolor = color.black, text_color = color.white)
-    table.cell(tbl, 0 ,1, trading_mode + " Range ($" + tostring(range, '#.##') + ") is " + tostring(tr_percent_of_atr, '#.#') + "% of ATR ($"+ tostring(atr, '#.##') + ")", bgcolor = tr_vs_atr_color)
-    table.cell(tbl, 0, 2, long_label + " > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
-    table.cell(tbl, 0, 3, short_label + " < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
+    table.cell(tbl, 0, 1, "Trend", bgcolor = trend_color)
+    table.cell(tbl, 0 ,2, trading_mode + " Range ($" + tostring(range, '#.##') + ") is " + tostring(tr_percent_of_atr, '#.#') + "% of ATR ($"+ tostring(atr, '#.##') + ")", bgcolor = tr_vs_atr_color)
+    table.cell(tbl, 0, 3, long_label + " > $" + tostring(upper_trigger, '#.##') + " | +1 ATR $" + tostring(upper_atr, '#.##'), bgcolor = upper_trigger_cloud_color)
+    table.cell(tbl, 0, 4, short_label + " < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
 
 // Add Clouds
 plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
