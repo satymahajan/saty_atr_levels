@@ -8,7 +8,7 @@
 # Adam Sliver, and others.
 #
 # Features:
-# - Day, Swing, Position trading modes
+# - Day, Multiday, Swing, Position trading modes
 # - Range against ATR for each period
 # - Put and call trigger levels
 # - Mid-range level
@@ -30,6 +30,10 @@ input upper_trigger_cloud_on = yes;
 input upper_middle_cloud_on = yes;
 input upper_atr_cloud_on = yes;
 input upper_extension_cloud_on = no;
+input fluid_trend_low_ema = 5;
+input fluid_trend_high_ema = 12;
+input trend_low_ema = 34;
+input trend_high_ema = 50;
 
 DefineGlobalColor("Close Cloud", Color.WHITE);
 DefineGlobalColor("Lower Trigger Cloud", Color.ORANGE);
@@ -53,7 +57,18 @@ case "Position":
     trading_period = AggregationPeriod.QUARTER;
 }
 
+# Trend
+def price = close;
+def fluid_trend_low = MovAvgExponential(price, fluid_trend_low_ema);
+def fluid_trend_high = MovAvgExponential(price, fluid_trend_high_ema);
+def fluid_bullish = price >= fluid_trend_low and price >= fluid_trend_high;
+def fluid_bearish = price <= fluid_trend_low and price <= fluid_trend_high;
+def trend_low = MovAvgExponential(price, trend_low_ema);
+def trend_high = MovAvgExponential(price, trend_high_ema);
+def bullish = price >= trend_low and price >= trend_high;
+def bearish = price <= trend_low and price <= trend_high;
 
+# Data
 def previous_close = close(period = trading_period)[if use_current_close then 0 else 1];
 def atr = Round(WildersAverage(TrueRange(high(period = trading_period), close(period = trading_period), low(period = trading_period)), atr_Length)[if use_current_close then 0 else 1], 2);
 def period_high = Highest(high(period = trading_period), 1);
@@ -69,8 +84,11 @@ def upper_middle = previous_close + (atr * 0.618);
 def lower_extension = (lower_atr) - (atr * 0.618);
 def upper_extension = (upper_atr) + (atr * 0.618);
 
+def rangeNotAvailable = IsNaN(tr);
+def atrNotAvailable = IsNaN(atr);
 # Labels
-AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else "Day ") + "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   " , (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE));
+AddLabel(yes,"Trend ",if (fluid_bullish and bullish) then Color.GREEN else if (fluid_bearish and bearish) then Color.RED else Color.ORANGE);
+AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else "Day ") + (if (rangeNotAvailable) then "Range N/A Pre-Market" else if (atrNotAvailable) then " Range - Not Enough Data" else "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   ") , (if (rangeNotAvailable or atrNotAvailable) then Color.GRAY else (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE)));
 AddLabel (yes, (if use_options_labels then "Calls" else "Long") + " > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 AddLabel (yes, (if use_options_labels then "Puts" else "Short") + " < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 
