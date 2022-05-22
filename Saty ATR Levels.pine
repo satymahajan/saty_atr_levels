@@ -13,7 +13,7 @@
 // - Put and call trigger levels
 // - Mid-range level
 // - Full-range levels
-// - Optional Extension Level
+// - Optional Full-range extension levels
 
 //@version=4
 study("Saty ATR Levels", shorttitle = "Saty ATR Levels", overlay = true)
@@ -36,22 +36,25 @@ lower_middle_cloud_on = input(true, "Lower Middle Cloud")
 lower_middle_cloud_color = input(color.gray, "Lower Middle Cloud Color")
 lower_atr_cloud_on = input(true, "Lower ATR Cloud")
 lower_atr_cloud_color = input(color.white, "Lower ATR Cloud Color")
-lower_extension_cloud_on = input(false, "Lower Extension Cloud")
+lower_extension_clouds_on = input(false, "Lower Extension Clouds")
 lower_extension_cloud_color = input(color.gray, "Lower Extension Cloud Color")
+lower_midrangeextension_cloud_color = input(color.gray, "Lower Midrange Extension Cloud Color")
+lower_2atrextension_cloud_color = input(color.white, "Lower 2 ATR Cloud Color")
 upper_trigger_cloud_on = input(true, "Upper Trigger Cloud")
 upper_trigger_cloud_color = input(color.aqua, "Upper Trigger Cloud Color")
 upper_middle_cloud_on = input(true, "Upper Middle Cloud")
 upper_middle_cloud_color = input(color.gray, "Upper Middle Cloud Color")
 upper_atr_cloud_on = input(true, "Upper ATR Cloud")
 upper_atr_cloud_color = input(color.white, "Upper ATR Cloud Color")
-upper_extension_cloud_on = input(false, "Upper Extension Cloud")
+upper_extension_clouds_on = input(false, "Upper Extension Clouds")
 upper_extension_cloud_color = input(color.gray, "Upper Extension Cloud Color")
+upper_midrangeextension_cloud_color = input(color.gray, "Upper Midrange Extension Cloud Color")
+upper_2atrextension_cloud_color = input(color.white, "Upper 2 ATR Extension Cloud Color")
 cloud_size = input(2, "Cloud Size")
 show_info = input(true, "Show Info Label")
-fluid_trend_low_ema = input(5, "Fluid Trend EMA Low")
-fluid_trend_high_ema = input(12, "Fluid Trend EMA High")
-trend_low_ema = input(34, "Trend EMA Low")
-trend_high_ema = input(50, "Trend EMA High")
+fast_ema = input(8, "Fast EMA")
+pivot_ema = input(21, "Pivot EMA")
+slow_ema = input(34, "Slow EMA")
 
 // Set the appropriate timeframe based on trading mode
 timeframe_func() => 
@@ -69,14 +72,11 @@ timeframe_func() =>
 
 // Trend
 price = close
-fluid_trend_low = ema(price, fluid_trend_low_ema)
-fluid_trend_high = ema(price, fluid_trend_high_ema)
-fluid_bullish = price >= fluid_trend_low and price >= fluid_trend_high
-fluid_bearish = price <= fluid_trend_low and price <= fluid_trend_high
-trend_low = ema(price, trend_low_ema)
-trend_high = ema(price, trend_high_ema)
-bullish = price >= trend_low and price >= trend_high
-bearish = price <= trend_low and price <= trend_high
+fast_ema_value = ema(price, fast_ema)
+pivot_ema_value = ema(price, pivot_ema)
+slow_ema_value = ema(price, slow_ema)
+bullish = price >= fast_ema_value and fast_ema_value >= pivot_ema_value and pivot_ema_value >= slow_ema_value
+bearish = price <= fast_ema_value and fast_ema_value <= pivot_ema_value and pivot_ema_value <= slow_ema_value
 
 // Data
 period_index = use_current_close ? 0 : 1
@@ -93,8 +93,12 @@ lower_atr = previous_close - atr
 upper_atr = previous_close + atr
 lower_middle = previous_close - (atr * 0.618)
 upper_middle = previous_close + (atr * 0.618)
-lower_extension = (lower_atr) - (atr * 0.618)
-upper_extension = (upper_atr) + (atr * 0.618)
+lower_extension = (lower_atr) - (atr * 0.236)
+upper_extension = (upper_atr) + (atr * 0.236)
+lower_middle_extension = (lower_atr) - (atr * 0.618)
+upper_middle_extension = (upper_atr) + (atr * 0.618)
+lower_2atr_extension = lower_atr - atr
+upper_2atr_extension = upper_atr + atr
 
 // Add Labels
 tr_vs_atr_color = color.green
@@ -127,9 +131,9 @@ else
     short_label := "Short"
 
 trend_color = color.orange
-if fluid_bullish and bullish
+if bullish
     trend_color := color.green
-else if fluid_bearish and bearish
+else if bearish
     trend_color := color.red
 else
     trend_color := color.orange
@@ -143,7 +147,9 @@ if (barstate.islast and show_info)
     table.cell(tbl, 0, 4, short_label + " < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
 
 // Add Clouds
-plot(lower_extension_cloud_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
+plot(lower_extension_clouds_on ? lower_2atr_extension : na, color = color.new(lower_2atrextension_cloud_color, 50), linewidth = cloud_size)
+plot(lower_extension_clouds_on ? lower_middle_extension : na, color = color.new(lower_midrangeextension_cloud_color, 50), linewidth = cloud_size)
+plot(lower_extension_clouds_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size)
 plot(lower_atr_cloud_on ? lower_atr : na, color = color.new(lower_atr_cloud_color, 50), linewidth = cloud_size)
 plot(lower_middle_cloud_on ? lower_middle : na, color = color.new(lower_middle_cloud_color, 50), linewidth = cloud_size)
 plot(lower_trigger_cloud_on ? lower_trigger : na, color = color.new(lower_trigger_cloud_color, 50), linewidth = cloud_size)
@@ -151,4 +157,6 @@ plot(close_cloud_on ? previous_close : na, color= color.new(close_cloud_color, 5
 plot(upper_trigger_cloud_on ? upper_trigger : na, color = color.new(upper_trigger_cloud_color, 50), linewidth = cloud_size)
 plot(upper_middle_cloud_on ? upper_middle : na, color = color.new(upper_middle_cloud_color, 50), linewidth = cloud_size)
 plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_color, 50), linewidth = cloud_size)
-plot(upper_extension_cloud_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
+plot(upper_extension_clouds_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size)
+plot(upper_extension_clouds_on ? upper_middle_extension : na, color = color.new(upper_midrangeextension_cloud_color, 50), linewidth = cloud_size)
+plot(upper_extension_clouds_on ? upper_2atr_extension : na, color = color.new(upper_2atrextension_cloud_color, 50), linewidth = cloud_size)
