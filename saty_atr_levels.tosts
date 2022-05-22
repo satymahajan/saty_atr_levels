@@ -25,25 +25,29 @@ input close_cloud_on = yes;
 input lower_trigger_cloud_on = yes;
 input lower_middle_cloud_on = yes;
 input lower_atr_cloud_on = yes;
-input lower_extension_cloud_on = no;
+input lower_extension_clouds_on = no;
 input upper_trigger_cloud_on = yes;
 input upper_middle_cloud_on = yes;
 input upper_atr_cloud_on = yes;
-input upper_extension_cloud_on = no;
-input fluid_trend_low_ema = 5;
-input fluid_trend_high_ema = 12;
-input trend_low_ema = 34;
-input trend_high_ema = 50;
+input upper_extension_clouds_on = no;
+input show_info = yes;
+input fast_ema = 8;
+input pivot_ema = 21;
+input slow_ema = 34;
 
 DefineGlobalColor("Close Cloud", Color.WHITE);
 DefineGlobalColor("Lower Trigger Cloud", Color.ORANGE);
 DefineGlobalColor("Lower Middle Cloud", Color.GRAY);
 DefineGlobalColor("Lower ATR Cloud", Color.WHITE);
 DefineGlobalColor("Lower Extension Cloud", Color.GRAY);
+DefineGlobalColor("Lower Middle Extension Cloud", Color.GRAY);
+DefineGlobalColor("Lower 2 ATR Extension Cloud", Color.WHITE);
 DefineGlobalColor("Upper Trigger Cloud", Color.CYAN);
 DefineGlobalColor("Upper Middle Cloud", Color.GRAY);
 DefineGlobalColor("Upper ATR Cloud", Color.WHITE);
 DefineGlobalColor("Upper Extension Cloud", Color.GRAY);
+DefineGlobalColor("Upper Middle Extension Cloud", Color.GRAY);
+DefineGlobalColor("Upper 2 ATR Extension Cloud", Color.WHITE);
 
 def trading_period;
 switch (trading_type) {
@@ -59,14 +63,11 @@ case "Position":
 
 # Trend
 def price = close;
-def fluid_trend_low = MovAvgExponential(price, fluid_trend_low_ema);
-def fluid_trend_high = MovAvgExponential(price, fluid_trend_high_ema);
-def fluid_bullish = price >= fluid_trend_low and price >= fluid_trend_high;
-def fluid_bearish = price <= fluid_trend_low and price <= fluid_trend_high;
-def trend_low = MovAvgExponential(price, trend_low_ema);
-def trend_high = MovAvgExponential(price, trend_high_ema);
-def bullish = price >= trend_low and price >= trend_high;
-def bearish = price <= trend_low and price <= trend_high;
+def fast_ema_value = MovAvgExponential(price, fast_ema);
+def pivot_ema_value = MovAvgExponential(price, pivot_ema);
+def slow_ema_value = MovAvgExponential(price, slow_ema);
+def bullish = price >= fast_ema_value and fast_ema_value >= pivot_ema_value and pivot_ema_value >= slow_ema_value;
+def bearish = price <= fast_ema_value and fast_ema_value <= pivot_ema_value and pivot_ema_value <= slow_ema_value;
 
 # Data
 def previous_close = close(period = trading_period)[if use_current_close then 0 else 1];
@@ -81,16 +82,20 @@ def lower_atr = previous_close - atr;
 def upper_atr = previous_close + atr;
 def lower_middle = previous_close - (atr * 0.618);
 def upper_middle = previous_close + (atr * 0.618);
-def lower_extension = (lower_atr) - (atr * 0.618);
-def upper_extension = (upper_atr) + (atr * 0.618);
+def lower_extension = (lower_atr) - (atr * 0.236);
+def upper_extension = (upper_atr) + (atr * 0.236);
+def lower_middle_extension = (lower_atr) - (atr * 0.618);
+def upper_middle_extension = (upper_atr) + (atr * 0.618);
+def lower_2atr_extension = lower_atr - atr;
+def upper_2atr_extension = upper_atr + atr;
 
 def rangeNotAvailable = IsNaN(tr);
 def atrNotAvailable = IsNaN(atr);
 # Labels
-AddLabel(yes,"Trend ",if (fluid_bullish and bullish) then Color.GREEN else if (fluid_bearish and bearish) then Color.RED else Color.ORANGE);
-AddLabel (yes, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else "Day ") + (if (rangeNotAvailable) then "Range N/A Pre-Market" else if (atrNotAvailable) then " Range - Not Enough Data" else "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   ") , (if (rangeNotAvailable or atrNotAvailable) then Color.GRAY else (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE)));
-AddLabel (yes, (if use_options_labels then "Calls" else "Long") + " > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
-AddLabel (yes, (if use_options_labels then "Puts" else "Short") + " < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
+AddLabel(show_info,"Trend ",if bullish then Color.GREEN else if bearish then Color.RED else Color.ORANGE);
+AddLabel (show_info, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else "Day ") + (if (rangeNotAvailable) then "Range N/A Pre-Market" else if (atrNotAvailable) then " Range - Not Enough Data" else "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   ") , (if (rangeNotAvailable or atrNotAvailable) then Color.GRAY else (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE)));
+AddLabel (show_info, (if use_options_labels then "Calls" else "Long") + " > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
+AddLabel (show_info, (if use_options_labels then "Puts" else "Short") + " < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 
 def cloud_size_factor = 0.01 * cloud_size;
 
@@ -109,6 +114,14 @@ AddCloud(if upper_middle_cloud_on then upper_middle else Double.NaN, (upper_midd
 AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), GlobalColor("Lower ATR Cloud"), GlobalColor("Lower ATR Cloud"));
 AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), GlobalColor("Upper ATR Cloud"), GlobalColor("Upper ATR Cloud"));
 
-# Fib Extension clouds
-AddCloud(if lower_extension_cloud_on then lower_extension else Double.NaN, (lower_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Cloud"), GlobalColor("Lower Extension Cloud"));
-AddCloud(if upper_extension_cloud_on then upper_extension else Double.NaN, (upper_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Cloud"), GlobalColor("Upper Extension Cloud"));
+# Extension clouds
+AddCloud(if lower_extension_clouds_on then lower_extension else Double.NaN, (lower_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Cloud"), GlobalColor("Lower Extension Cloud"));
+AddCloud(if upper_extension_clouds_on then upper_extension else Double.NaN, (upper_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Cloud"), GlobalColor("Upper Extension Cloud"));
+
+# Middle Extension clouds
+AddCloud(if lower_extension_clouds_on then lower_middle_extension else Double.NaN, (lower_middle_extension - (atr * cloud_size_factor)), GlobalColor("Lower Middle Extension Cloud"), GlobalColor("Lower Middle Extension Cloud"));
+AddCloud(if upper_extension_clouds_on then upper_middle_extension else Double.NaN, (upper_middle_extension + (atr * cloud_size_factor)), GlobalColor("Upper Middle Extension Cloud"), GlobalColor("Upper Middle Extension Cloud"));
+
+# +/- 2 ATR clouds
+AddCloud(if lower_extension_clouds_on then lower_2atr_extension else Double.NaN, (lower_2atr_extension - (atr * cloud_size_factor)), GlobalColor("Lower 2 ATR Extension Cloud"), GlobalColor("Lower 2 ATR Extension Cloud"));
+AddCloud(if upper_extension_clouds_on then upper_2atr_extension else Double.NaN, (upper_2atr_extension + (atr * cloud_size_factor)), GlobalColor("Upper 2 ATR Extension Cloud"), GlobalColor("Upper 2 ATR Extension Cloud"));
