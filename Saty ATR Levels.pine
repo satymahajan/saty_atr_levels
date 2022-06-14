@@ -7,8 +7,9 @@
 // Based on my own ideas and ideas from Ripster, drippy2hard, 
 // Adam Sliver, and others.
 //
-// Features:
+// Features
 // - Day, Multiday, Swing, and Position trading modes
+// - Trend indicator based off of the 8-21-34 EMAs
 // - Range against ATR for each period
 // - Put and call trigger levels
 // - Mid-range level
@@ -23,7 +24,8 @@ day_trading = "Day"
 multiday_trading = "Multiday"
 swing_trading = "Swing"
 position_trading = "Position"
-trading_type = input(day_trading, "Trading Type", options=[day_trading, multiday_trading, swing_trading, position_trading])
+longterm_trading = "Long-term"
+trading_type = input(day_trading, "Trading Type", options=[day_trading, multiday_trading, swing_trading, position_trading, longterm_trading])
 use_options_labels = input(true, "Use Options Labels")
 atr_length = input(14, "ATR Length")
 trigger_percentage = input(0.236, "Trigger Percentage", type=input.float)
@@ -67,6 +69,8 @@ timeframe_func() =>
         timeframe := "M"
     else if trading_type == position_trading
         timeframe := "3M"
+    else if trading_type == longterm_trading
+        timeframe := "12M"
     else
         timeframe := "D"
 
@@ -118,6 +122,8 @@ else if trading_type == swing_trading
     trading_mode := "Swing"
 else if trading_type == position_trading
     trading_mode := "Position"
+else if trading_type == longterm_trading
+    trading_mode := "Long-term"
 else
     trading_mode := ""
 
