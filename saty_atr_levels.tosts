@@ -15,7 +15,7 @@
 # - Full-range levels
 # - Optional Extension Level
 
-input trading_type = {default "Day", "Multiday", "Swing", "Position"};
+input trading_type = {"Scalp", default "Day", "Multiday", "Swing", "Position", "Long-term"};
 input use_options_labels = yes;
 input atr_Length = 14;
 input trigger_percentage = 0.236;
@@ -35,22 +35,20 @@ input fast_ema = 8;
 input pivot_ema = 21;
 input slow_ema = 34;
 
-DefineGlobalColor("Close Cloud", Color.WHITE);
+DefineGlobalColor("Previous Close Cloud", Color.WHITE);
 DefineGlobalColor("Lower Trigger Cloud", Color.ORANGE);
-DefineGlobalColor("Lower Middle Cloud", Color.GRAY);
-DefineGlobalColor("Lower ATR Cloud", Color.WHITE);
-DefineGlobalColor("Lower Extension Cloud", Color.GRAY);
-DefineGlobalColor("Lower Middle Extension Cloud", Color.GRAY);
-DefineGlobalColor("Lower 2 ATR Extension Cloud", Color.WHITE);
+DefineGlobalColor("Lower Midrange Cloud", Color.GRAY);
+DefineGlobalColor("Lower ATR Clouds", Color.WHITE);
+DefineGlobalColor("Lower Extension Clouds", Color.GRAY);
 DefineGlobalColor("Upper Trigger Cloud", Color.CYAN);
-DefineGlobalColor("Upper Middle Cloud", Color.GRAY);
-DefineGlobalColor("Upper ATR Cloud", Color.WHITE);
-DefineGlobalColor("Upper Extension Cloud", Color.GRAY);
-DefineGlobalColor("Upper Middle Extension Cloud", Color.GRAY);
-DefineGlobalColor("Upper 2 ATR Extension Cloud", Color.WHITE);
+DefineGlobalColor("Upper Midrange Cloud", Color.GRAY);
+DefineGlobalColor("Upper ATR Clouds", Color.WHITE);
+DefineGlobalColor("Upper Extension Clouds", Color.GRAY);
 
 def trading_period;
 switch (trading_type) {
+case "Scalp":
+    trading_period = AggregationPeriod.FOUR_HOURS;
 case "Day":
     trading_period = AggregationPeriod.DAY;
 case "Multiday":
@@ -59,6 +57,8 @@ case "Swing":
     trading_period = AggregationPeriod.MONTH;
 case "Position":
     trading_period = AggregationPeriod.QUARTER;
+case "Long-term":
+    trading_period = AggregationPeriod.YEAR;
 }
 
 # Trend
@@ -80,12 +80,12 @@ def lower_trigger = previous_close - (trigger_percentage * atr);
 def upper_trigger = previous_close + (trigger_percentage * atr);
 def lower_atr = previous_close - atr;
 def upper_atr = previous_close + atr;
-def lower_middle = previous_close - (atr * 0.618);
-def upper_middle = previous_close + (atr * 0.618);
+def lower_midrange = previous_close - (atr * 0.618);
+def upper_midrange = previous_close + (atr * 0.618);
 def lower_extension = (lower_atr) - (atr * 0.236);
 def upper_extension = (upper_atr) + (atr * 0.236);
-def lower_middle_extension = (lower_atr) - (atr * 0.618);
-def upper_middle_extension = (upper_atr) + (atr * 0.618);
+def lower_midrange_extension = (lower_atr) - (atr * 0.618);
+def upper_midrange_extension = (upper_atr) + (atr * 0.618);
 def lower_2atr_extension = lower_atr - atr;
 def upper_2atr_extension = upper_atr + atr;
 
@@ -93,35 +93,35 @@ def rangeNotAvailable = IsNaN(tr);
 def atrNotAvailable = IsNaN(atr);
 # Labels
 AddLabel(show_info,"Trend ",if bullish then Color.GREEN else if bearish then Color.RED else Color.ORANGE);
-AddLabel (show_info, (if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else "Day ") + (if (rangeNotAvailable) then "Range N/A Pre-Market" else if (atrNotAvailable) then " Range - Not Enough Data" else "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   ") , (if (rangeNotAvailable or atrNotAvailable) then Color.GRAY else (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE)));
+AddLabel (show_info, (if trading_period == AggregationPeriod.YEAR then "Long-term " else if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else if trading_period == AggregationPeriod.FOUR_HOURS then "Scalp " else "Day ") + (if (rangeNotAvailable) then "Range N/A Pre-Market" else if (atrNotAvailable) then " Range - Not Enough Data" else "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   ") , (if (rangeNotAvailable or atrNotAvailable) then Color.GRAY else (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE)));
 AddLabel (show_info, (if use_options_labels then "Calls" else "Long") + " > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 AddLabel (show_info, (if use_options_labels then "Puts" else "Short") + " < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
 
 def cloud_size_factor = 0.01 * cloud_size;
 
 # Previous Close cloud
-AddCloud(if close_cloud_on then (previous_close - (atr * cloud_size_factor / 2)) else Double.NaN, (previous_close + (atr * cloud_size_factor / 2)), GlobalColor("Close Cloud"), GlobalColor("Close Cloud"));
+AddCloud(if close_cloud_on then (previous_close - (atr * cloud_size_factor / 2)) else Double.NaN, (previous_close + (atr * cloud_size_factor / 2)), GlobalColor("Previous Close Cloud"), GlobalColor("Previous Close Cloud"));
 
 # Trigger clouds
 AddCloud(if lower_trigger_cloud_on then lower_trigger else Double.NaN, (lower_trigger - (atr * cloud_size_factor)), GlobalColor("Lower Trigger Cloud"), GlobalColor("Lower Trigger Cloud"));
 AddCloud(if upper_trigger_cloud_on then upper_trigger else Double.NaN, (upper_trigger + (atr * cloud_size_factor)), GlobalColor("Upper Trigger Cloud"), GlobalColor("Upper Trigger Cloud")); 
 
 # Middle clouds
-AddCloud(if lower_middle_cloud_on then lower_middle else Double.NaN, (lower_middle - (atr * cloud_size_factor)), GlobalColor("Lower Middle Cloud"), GlobalColor("Lower Middle Cloud"));
-AddCloud(if upper_middle_cloud_on then upper_middle else Double.NaN, (upper_middle + (atr * cloud_size_factor)), GlobalColor("Upper Middle Cloud"), GlobalColor("Upper Middle Cloud")); 
+AddCloud(if lower_middle_cloud_on then lower_midrange else Double.NaN, (lower_midrange - (atr * cloud_size_factor)), GlobalColor("Lower Midrange Cloud"), GlobalColor("Lower Midrange Cloud"));
+AddCloud(if upper_middle_cloud_on then upper_midrange else Double.NaN, (upper_midrange + (atr * cloud_size_factor)), GlobalColor("Upper Midrange Cloud"), GlobalColor("Upper Midrange Cloud")); 
 
 # +/- 1 ATR clouds
-AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), GlobalColor("Lower ATR Cloud"), GlobalColor("Lower ATR Cloud"));
-AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), GlobalColor("Upper ATR Cloud"), GlobalColor("Upper ATR Cloud"));
+AddCloud(if lower_atr_cloud_on then lower_atr else Double.NaN, (lower_atr - (atr * cloud_size_factor)), GlobalColor("Lower ATR Clouds"), GlobalColor("Lower ATR Clouds"));
+AddCloud(if upper_atr_cloud_on then upper_atr else Double.NaN, (upper_atr + (atr * cloud_size_factor)), GlobalColor("Upper ATR Clouds"), GlobalColor("Upper ATR Clouds"));
 
 # Extension clouds
-AddCloud(if lower_extension_clouds_on then lower_extension else Double.NaN, (lower_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Cloud"), GlobalColor("Lower Extension Cloud"));
-AddCloud(if upper_extension_clouds_on then upper_extension else Double.NaN, (upper_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Cloud"), GlobalColor("Upper Extension Cloud"));
+AddCloud(if lower_extension_clouds_on then lower_extension else Double.NaN, (lower_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Clouds"), GlobalColor("Lower Extension Clouds"));
+AddCloud(if upper_extension_clouds_on then upper_extension else Double.NaN, (upper_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Clouds"), GlobalColor("Upper Extension Clouds"));
 
 # Middle Extension clouds
-AddCloud(if lower_extension_clouds_on then lower_middle_extension else Double.NaN, (lower_middle_extension - (atr * cloud_size_factor)), GlobalColor("Lower Middle Extension Cloud"), GlobalColor("Lower Middle Extension Cloud"));
-AddCloud(if upper_extension_clouds_on then upper_middle_extension else Double.NaN, (upper_middle_extension + (atr * cloud_size_factor)), GlobalColor("Upper Middle Extension Cloud"), GlobalColor("Upper Middle Extension Cloud"));
+AddCloud(if lower_extension_clouds_on then lower_midrange_extension else Double.NaN, (lower_midrange_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Clouds"), GlobalColor("Lower Extension Clouds"));
+AddCloud(if upper_extension_clouds_on then upper_midrange_extension else Double.NaN, (upper_midrange_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Clouds"), GlobalColor("Upper Extension Clouds"));
 
 # +/- 2 ATR clouds
-AddCloud(if lower_extension_clouds_on then lower_2atr_extension else Double.NaN, (lower_2atr_extension - (atr * cloud_size_factor)), GlobalColor("Lower 2 ATR Extension Cloud"), GlobalColor("Lower 2 ATR Extension Cloud"));
-AddCloud(if upper_extension_clouds_on then upper_2atr_extension else Double.NaN, (upper_2atr_extension + (atr * cloud_size_factor)), GlobalColor("Upper 2 ATR Extension Cloud"), GlobalColor("Upper 2 ATR Extension Cloud"));
+AddCloud(if lower_extension_clouds_on then lower_2atr_extension else Double.NaN, (lower_2atr_extension - (atr * cloud_size_factor)), GlobalColor("Lower ATR Clouds"), GlobalColor("Lower ATR Clouds"));
+AddCloud(if upper_extension_clouds_on then upper_2atr_extension else Double.NaN, (upper_2atr_extension + (atr * cloud_size_factor)), GlobalColor("Upper ATR Clouds"), GlobalColor("Upper ATR Clouds"));
