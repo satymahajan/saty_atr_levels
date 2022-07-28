@@ -84,11 +84,11 @@ bearish = price <= fast_ema_value and fast_ema_value <= pivot_ema_value and pivo
 
 // Data
 period_index = use_current_close ? 0 : 1
-ticker = tickerid(syminfo.prefix, syminfo.ticker, session=session.regular)
+ticker = tickerid(syminfo.prefix, syminfo.ticker, session = session.regular)
 previous_close = security(ticker,timeframe_func(),close[period_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
 atr = security(ticker,timeframe_func(),atr(atr_length)[period_index],gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
 period_high = security(ticker, timeframe_func(),high,gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
-period_low =security(ticker, timeframe_func(),low,gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
+period_low = security(ticker, timeframe_func(),low,gaps = barmerge.gaps_off, lookahead = barmerge.lookahead_on)
 range = period_high - period_low
 tr_percent_of_atr = (range / atr) * 100
 lower_trigger = previous_close - (trigger_percentage * atr)
@@ -103,6 +103,12 @@ lower_middle_extension = (lower_atr) - (atr * 0.618)
 upper_middle_extension = (upper_atr) + (atr * 0.618)
 lower_2atr_extension = lower_atr - atr
 upper_2atr_extension = upper_atr + atr
+lower_2nd_extension = (lower_2atr_extension) - (atr * 0.236)
+upper_2nd_extension = (upper_2atr_extension) + (atr * 0.236)
+lower_2nd_middle_extension = (lower_2atr_extension) - (atr * 0.618)
+upper_2nd_middle_extension = (upper_2atr_extension) + (atr * 0.618)
+lower_3atr_extension = lower_2atr_extension - atr
+upper_3atr_extension = upper_2atr_extension + atr
 
 // Add Labels
 tr_vs_atr_color = color.green
@@ -153,6 +159,9 @@ if (barstate.islast and show_info)
     table.cell(tbl, 0, 4, short_label + " < $"+ tostring(lower_trigger, '#.##') + " | -1 ATR: $" + tostring(lower_atr, '#.##'),  bgcolor = lower_trigger_cloud_color)
 
 // Add Clouds
+plot(lower_extension_clouds_on ? lower_3atr_extension : na, color = color.new(lower_2atrextension_cloud_color, 50), linewidth = cloud_size, title="Lower 3 ATR Extension")
+plot(lower_extension_clouds_on ? lower_2nd_middle_extension : na, color = color.new(lower_midrangeextension_cloud_color, 50), linewidth = cloud_size, title="Lower 2nd Midrange Extension")
+plot(lower_extension_clouds_on ? lower_2nd_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size, title="Lower 2nd Extension")
 plot(lower_extension_clouds_on ? lower_2atr_extension : na, color = color.new(lower_2atrextension_cloud_color, 50), linewidth = cloud_size, title="Lower 2 ATR Extension")
 plot(lower_extension_clouds_on ? lower_middle_extension : na, color = color.new(lower_midrangeextension_cloud_color, 50), linewidth = cloud_size, title="Lower Midrange Extension")
 plot(lower_extension_clouds_on ? lower_extension : na, color = color.new(lower_extension_cloud_color, 50), linewidth = cloud_size, title="Lower Extension")
@@ -166,3 +175,6 @@ plot(upper_atr_cloud_on ? upper_atr : na, color = color.new(upper_atr_cloud_colo
 plot(upper_extension_clouds_on ? upper_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size, title="Upper Extension")
 plot(upper_extension_clouds_on ? upper_middle_extension : na, color = color.new(upper_midrangeextension_cloud_color, 50), linewidth = cloud_size, title="Upper Midrange Extension")
 plot(upper_extension_clouds_on ? upper_2atr_extension : na, color = color.new(upper_2atrextension_cloud_color, 50), linewidth = cloud_size, title="Upper 2 ATR Extension")
+plot(upper_extension_clouds_on ? upper_2nd_extension : na, color = color.new(upper_extension_cloud_color, 50), linewidth = cloud_size, title="Upper 2nd Extension")
+plot(upper_extension_clouds_on ? upper_2nd_middle_extension : na, color = color.new(upper_midrangeextension_cloud_color, 50), linewidth = cloud_size, title="Upper 2nd Midrange Extension")
+plot(upper_extension_clouds_on ? upper_3atr_extension : na, color = color.new(upper_2atrextension_cloud_color, 50), linewidth = cloud_size, title="Upper 3 ATR Extension")
