@@ -13,7 +13,7 @@
 # - Put and call trigger levels
 # - Mid-range level
 # - Full-range levels
-# - Optional Extension Level
+# - Optional Extension Levels
 
 input trading_type = {"Scalp", default "Day", "Multiday", "Swing", "Position", "Long-term"};
 input use_options_labels = yes;
@@ -88,11 +88,17 @@ def lower_midrange_extension = (lower_atr) - (atr * 0.618);
 def upper_midrange_extension = (upper_atr) + (atr * 0.618);
 def lower_2atr_extension = lower_atr - atr;
 def upper_2atr_extension = upper_atr + atr;
+def lower_2nd_extension = (lower_2atr_extension) - (atr * 0.236);
+def upper_2nd_extension = (upper_2atr_extension) + (atr * 0.236);
+def lower_2nd_midrange_extension = (lower_2atr_extension) - (atr * 0.618);
+def upper_2nd_midrange_extension = (upper_2atr_extension) + (atr * 0.618);
+def lower_3atr_extension = lower_2atr_extension - atr;
+def upper_3atr_extension = upper_2atr_extension + atr;
 
 def rangeNotAvailable = IsNaN(tr);
 def atrNotAvailable = IsNaN(atr);
 # Labels
-AddLabel(show_info,"Trend ",if bullish then Color.GREEN else if bearish then Color.RED else Color.ORANGE);
+AddLabel(show_info, "Trend ", if bullish then Color.GREEN else if bearish then Color.RED else Color.ORANGE);
 AddLabel (show_info, (if trading_period == AggregationPeriod.YEAR then "Long-term " else if trading_period == AggregationPeriod.QUARTER then "Position "  else if trading_period == AggregationPeriod.MONTH then "Swing " else if trading_period == AggregationPeriod.WEEK then "Multiday " else if trading_period == AggregationPeriod.FOUR_HOURS then "Scalp " else "Day ") + (if (rangeNotAvailable) then "Range N/A Pre-Market" else if (atrNotAvailable) then " Range - Not Enough Data" else "Range ($" + Round (tr , 2) + ") is " + Round (tr_percent_of_atr, 0) + "% of ATR ($" + Round (atr, 2) + ")   ") , (if (rangeNotAvailable or atrNotAvailable) then Color.GRAY else (if tr_percent_of_atr <= 70 then Color.GREEN else if tr_percent_of_atr >= 90 then Color.RED else Color.ORANGE)));
 AddLabel (show_info, (if use_options_labels then "Calls" else "Long") + " > $" + Round (upper_trigger, 2) + " | +1 ATR: $" + Round (upper_atr, 2) + "   ", GlobalColor("Upper Trigger Cloud"));
 AddLabel (show_info, (if use_options_labels then "Puts" else "Short") + " < $" + Round (lower_trigger, 2) + " | -1 ATR: $" +  Round (lower_atr, 2) + "   ", GlobalColor("Lower Trigger Cloud"));
@@ -125,3 +131,15 @@ AddCloud(if upper_extension_clouds_on then upper_midrange_extension else Double.
 # +/- 2 ATR clouds
 AddCloud(if lower_extension_clouds_on then lower_2atr_extension else Double.NaN, (lower_2atr_extension - (atr * cloud_size_factor)), GlobalColor("Lower ATR Clouds"), GlobalColor("Lower ATR Clouds"));
 AddCloud(if upper_extension_clouds_on then upper_2atr_extension else Double.NaN, (upper_2atr_extension + (atr * cloud_size_factor)), GlobalColor("Upper ATR Clouds"), GlobalColor("Upper ATR Clouds"));
+
+# 2nd Extension clouds
+AddCloud(if lower_extension_clouds_on then lower_2nd_extension else Double.NaN, (lower_2nd_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Clouds"), GlobalColor("Lower Extension Clouds"));
+AddCloud(if upper_extension_clouds_on then upper_2nd_extension else Double.NaN, (upper_2nd_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Clouds"), GlobalColor("Upper Extension Clouds"));
+
+# 2nd Middle Extension clouds
+AddCloud(if lower_extension_clouds_on then lower_2nd_midrange_extension else Double.NaN, (lower_2nd_midrange_extension - (atr * cloud_size_factor)), GlobalColor("Lower Extension Clouds"), GlobalColor("Lower Extension Clouds"));
+AddCloud(if upper_extension_clouds_on then upper_2nd_midrange_extension else Double.NaN, (upper_2nd_midrange_extension + (atr * cloud_size_factor)), GlobalColor("Upper Extension Clouds"), GlobalColor("Upper Extension Clouds"));
+
+# +/- 3 ATR clouds
+AddCloud(if lower_extension_clouds_on then lower_3atr_extension else Double.NaN, (lower_3atr_extension - (atr * cloud_size_factor)), GlobalColor("Lower ATR Clouds"), GlobalColor("Lower ATR Clouds"));
+AddCloud(if upper_extension_clouds_on then upper_3atr_extension else Double.NaN, (upper_3atr_extension + (atr * cloud_size_factor)), GlobalColor("Upper ATR Clouds"), GlobalColor("Upper ATR Clouds"));
