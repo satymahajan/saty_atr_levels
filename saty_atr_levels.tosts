@@ -18,7 +18,7 @@
 
 input trading_type = {"Scalp", default "Day", "Multiday", "Swing", "Position", "Long-term"};
 input show_all_fibonacci_levels = yes;
-input show_extensions = yes;
+input show_extensions = no;
 input use_options_labels = yes;
 input atr_length = 14;
 input trigger_percentage = 0.236;
